@@ -119,6 +119,14 @@ function! htmlcomplete#CompleteTags(findstart, base)
 				let start -= 1
 			endwhile
 		endif
+
+		if &filetype =~? 'ruby' && b:compl_context =~ '^<%'
+			let b:rubycompl = 1
+			let start = col('.') - 1
+			while start >= 0 && line[start - 1] =~ '[a-zA-Z_0-9\x7f-\xff$]'
+				let start -= 1
+			endwhile
+		endif
 	else
 		let b:compl_context = getline('.')[0:compl_begin]
 	endif
@@ -144,6 +152,10 @@ function! htmlcomplete#CompleteTags(findstart, base)
 		unlet! b:phpcompl
 		let context = b:compl_context
 		return phpcomplete#CompletePHP(0, a:base)
+	elseif exists("b:rubycompl")
+		unlet! b:rubycompl
+		let context = b:compl_context
+		return rubycomplete#Complete(0, a:base)
 	else
 		if len(b:compl_context) == 0 && !exists("b:entitiescompl")
 			return []
